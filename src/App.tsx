@@ -8,7 +8,9 @@ import Profile from './components/Profile';
 import BlockchainDemo from './pages/BlockchainDemo';
 import Community from './components/Community';
 import HandRotationTracker from './components/HandRotationTracker';
-import { User } from 'lucide-react';
+import AdminControl from './pages/AdminControl';
+import ReportAnalyzer from './components/ReportAnalyzer';
+import { User, FileText } from 'lucide-react';
 
 function AuthenticatedApp() {
   const { user, logout } = useAuth();
@@ -16,12 +18,16 @@ function AuthenticatedApp() {
   const [showBlockchain, setShowBlockchain] = React.useState(false);
   const [showCommunity, setShowCommunity] = React.useState(false);
   const [showHandTracker, setShowHandTracker] = React.useState(false);
+  const [showAdminControl, setShowAdminControl] = React.useState(false);
+  const [showReportAnalyzer, setShowReportAnalyzer] = React.useState(false);
 
   const toggleProfile = () => {
     setShowProfile(!showProfile);
     setShowBlockchain(false);
     setShowCommunity(false);
     setShowHandTracker(false);
+    setShowAdminControl(false);
+    setShowReportAnalyzer(false);
   };
 
   const toggleBlockchain = () => {
@@ -29,6 +35,8 @@ function AuthenticatedApp() {
     setShowProfile(false);
     setShowCommunity(false);
     setShowHandTracker(false);
+    setShowAdminControl(false);
+    setShowReportAnalyzer(false);
   };
 
   const toggleCommunity = () => {
@@ -36,6 +44,8 @@ function AuthenticatedApp() {
     setShowProfile(false);
     setShowBlockchain(false);
     setShowHandTracker(false);
+    setShowAdminControl(false);
+    setShowReportAnalyzer(false);
   };
 
   const toggleHandTracker = () => {
@@ -43,6 +53,26 @@ function AuthenticatedApp() {
     setShowProfile(false);
     setShowBlockchain(false);
     setShowCommunity(false);
+    setShowAdminControl(false);
+    setShowReportAnalyzer(false);
+  };
+
+  const toggleAdminControl = () => {
+    setShowAdminControl(!showAdminControl);
+    setShowProfile(false);
+    setShowBlockchain(false);
+    setShowCommunity(false);
+    setShowHandTracker(false);
+    setShowReportAnalyzer(false);
+  };
+
+  const toggleReportAnalyzer = () => {
+    setShowReportAnalyzer(!showReportAnalyzer);
+    setShowProfile(false);
+    setShowBlockchain(false);
+    setShowCommunity(false);
+    setShowHandTracker(false);
+    setShowAdminControl(false);
   };
 
   return (
@@ -57,16 +87,17 @@ function AuthenticatedApp() {
             </div>
             <div className="flex items-center space-x-4">
               <button
-                onClick={toggleHandTracker}
-                className="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-full shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-              >
-                Hand Tracker
-              </button>
-              <button
                 onClick={toggleCommunity}
                 className="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-full shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
               >
                 Community
+              </button>
+              <button
+                onClick={toggleReportAnalyzer}
+                className="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-full shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                <FileText className="h-4 w-4 mr-1" />
+                Report Analyzer
               </button>
               <button
                 onClick={toggleBlockchain}
@@ -74,6 +105,20 @@ function AuthenticatedApp() {
               >
                 Blockchain Demo
               </button>
+              <button
+                onClick={toggleHandTracker}
+                className="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-full shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+              >
+                Exercise Tracker
+              </button>
+              {user?.role === 'admin' && (
+                <button
+                  onClick={toggleAdminControl}
+                  className="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-full shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                >
+                  Admin Control
+                </button>
+              )}
               <span className="text-sm text-gray-700">
                 Welcome, {user?.name}
               </span>
@@ -104,6 +149,10 @@ function AuthenticatedApp() {
           <Community />
         ) : showHandTracker ? (
           <HandRotationTracker />
+        ) : showAdminControl ? (
+          <AdminControl />
+        ) : showReportAnalyzer ? (
+          <ReportAnalyzer />
         ) : user?.role === 'admin' ? (
           <AdminDashboard />
         ) : (
@@ -114,24 +163,10 @@ function AuthenticatedApp() {
   );
 }
 
-function AppContent() {
-  const { isAuthenticated, isLoading } = useAuth();
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-      </div>
-    );
-  }
-
-  return !isAuthenticated ? <LoginForm /> : <AuthenticatedApp />;
-}
-
 function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <AuthenticatedApp />
     </AuthProvider>
   );
 }

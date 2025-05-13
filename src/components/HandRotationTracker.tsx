@@ -30,6 +30,8 @@ const HandRotationTracker: React.FC = () => {
     rotationStarted: false
   });
   const [summary, setSummary] = useState<string>("");
+  const [rotationAngle, setRotationAngle] = useState(0);
+  const [rotationDirection, setRotationDirection] = useState('');
 
   useEffect(() => {
     let stream: MediaStream | null = null;
@@ -87,26 +89,22 @@ const HandRotationTracker: React.FC = () => {
                 }
 
                 // Track rotation
-                const wrist = landmarks[0];
-                const indexFinger = landmarks[8];
+                const angle = getHandAngle(landmarks);
+                setRotationAngle(angle);
+                if (Math.abs(rotationAngle) >= 360) {
+                  setSession(prev => ({
+                    ...prev,
+                    rotationCount: prev.rotationCount + 1
+                  }));
+                  setRotationAngle(0);
+                }
 
-                setSession(prev => {
-                  const newSession = { ...prev };
-
-                  if (indexFinger.y < wrist.y - 0.1 && !prev.rotationStarted) {
-                    newSession.rotationStarted = true;
-                  } else if (indexFinger.y > wrist.y + 0.1 && prev.rotationStarted) {
-                    newSession.rotationStarted = false;
-                    newSession.rotationCount += 1;
-                    
-                    const now = Date.now();
-                    const duration = (now - prev.lastRotationTime) / 1000;
-                    newSession.rotationTimes.push(duration);
-                    newSession.lastRotationTime = now;
-                  }
-
-                  return newSession;
-                });
+                // Update direction
+                let delta = angle - rotationAngle;
+                if (delta > 180) delta -= 360;
+                if (delta < -180) delta += 360;
+                let lastDirection = delta > 0 ? 'Clockwise' : 'Counter-Clockwise';
+                setRotationDirection(lastDirection);
               }
             }
 
@@ -130,9 +128,16 @@ const HandRotationTracker: React.FC = () => {
               ctx.fillText(`Speed: ${lastSpeed.toFixed(2)}s (${pace})`, 50, 130);
             }
 
+            // Angle
+            ctx.fillText(`Angle: ${rotationAngle.toFixed(1)}°`, 50, 170);
+
+            // Direction
+            ctx.fillText(`Direction: ${rotationDirection}`, 50, 210);
+
             if (session.rotationCount >= goal) {
               ctx.fillStyle = '#00ff00';
-              ctx.fillText("Task Complete! ✅", 50, 170);
+              ctx.fillText("Task Complete! ✅", 50, 250);
+              setIsTracking(false);
             }
 
             animationFrame = requestAnimationFrame(trackHands);
@@ -191,6 +196,21 @@ Avg Speed per Rotation: ${avgSpeed.toFixed(2)}s
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  };
+
+  const getHandAngle = (landmarks) => {
+    // Use wrist (0), index_mcp (5), pinky_mcp (17)
+    const wrist = landmarks[0];
+    const index = landmarks[5];
+    const pinky = landmarks[17];
+    // Vector from wrist to index and wrist to pinky
+    const v1 = [index.x - wrist.x, index.y - wrist.y];
+    const v2 = [pinky.x - wrist.x, pinky.y - wrist.y];
+    // Angle between vectors
+    const angle = Math.atan2(v2[1], v2[0]) - Math.atan2(v1[1], v1[0]);
+    let deg = angle * (180 / Math.PI);
+    if (deg < 0) deg += 360;
+    return deg;
   };
 
   return (
@@ -294,6 +314,24 @@ Avg Speed per Rotation: ${avgSpeed.toFixed(2)}s
           </button>
         </div>
       )}
+
+      <button
+        onClick={() => {
+          setSession({
+            rotationCount: 0,
+            startTime: Date.now(),
+            rotationTimes: [],
+            handLabel: 'Unknown',
+            lastRotationTime: Date.now(),
+            rotationStarted: false
+          });
+          setRotationAngle(0);
+          setRotationDirection('');
+        }}
+        className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 ml-4"
+      >
+        Reset
+      </button>
     </div>
   );
 };

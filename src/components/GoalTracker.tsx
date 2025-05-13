@@ -13,6 +13,10 @@ interface GoalCategory {
   goals: string[];
 }
 
+interface GoalTrackerProps {
+  completeTask?: (module: 'goals') => void;
+}
+
 const goalCategories: GoalCategory[] = [
   {
     name: "Physical Health",
@@ -60,7 +64,7 @@ const goalCategories: GoalCategory[] = [
   }
 ];
 
-const GoalTracker: React.FC = () => {
+const GoalTracker: React.FC<GoalTrackerProps> = ({ completeTask }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>(goalCategories[0].name);
   const [activeGoals, setActiveGoals] = useState<Goal[]>([]);
   const [points, setPoints] = useState<number>(0);
@@ -84,6 +88,7 @@ const GoalTracker: React.FC = () => {
         setPoints(p => p + 5);
         setShowConfetti(true);
         setTimeout(() => setShowConfetti(false), 2000);
+        if (completeTask) completeTask('goals');
         return { ...goal, completed: true };
       }
       return goal;

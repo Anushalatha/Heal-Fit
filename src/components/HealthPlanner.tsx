@@ -55,10 +55,16 @@ const HealthPlanner: React.FC = () => {
 
       const prompt = `
         Create a ${duration.toLowerCase()} personalized health plan for ${goal}.
-        Include structured meals, workouts, mental wellness activities, and hydration tips.
+        Include a structured meal plan for each day (with clear sections for breakfast, lunch, dinner, and snacks), workouts, mental wellness activities, and hydration tips.
         Consider dietary/lifestyle preferences: ${preferences}.
         Available groceries: ${allSelectedGroceries.join(", ")}.
-        Output in clearly labeled daily sections (Day 1, Day 2...).
+        Output in clearly labeled daily sections (Day 1, Day 2...) and use clear meal plan subheadings.
+        If possible, format the meal plan as:
+        Day X:
+        - Breakfast: ...
+        - Lunch: ...
+        - Dinner: ...
+        - Snacks: ...
       `;
 
       const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
@@ -74,8 +80,10 @@ const HealthPlanner: React.FC = () => {
 
   const renderPlan = () => {
     if (!plan) return null;
-
     const days = plan.split(/Day \d+:?/).filter(Boolean);
+    if (days.length === 0) {
+      return <div className="text-red-600 font-semibold">No meal plan found. Please try again or adjust your preferences.</div>;
+    }
     return days.map((day, index) => (
       <div key={index} className="mb-4">
         <button

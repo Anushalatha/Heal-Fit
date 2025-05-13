@@ -12,13 +12,21 @@
   "dependencies": {
     "@google/generative-ai": "^0.2.1",
     "@mediapipe/tasks-vision": "^0.10.12",
+    "@types/canvas-confetti": "^1.9.0",
+    "@types/react-toastify": "^4.0.2",
+    "canvas-confetti": "^1.9.3",
+    "chart.js": "^4.4.9",
     "date-fns": "^3.3.1",
+    "framer-motion": "^12.10.5",
+    "html2pdf.js": "^0.10.3",
+    "jspdf": "^2.5.1",
     "lucide-react": "^0.344.0",
     "pdfjs-dist": "^4.0.379",
     "react": "^18.3.1",
+    "react-chartjs-2": "^5.3.0",
     "react-dom": "^18.3.1",
-    "web3": "^4.5.0",
-    "jspdf": "^2.5.1"
+    "react-toastify": "^11.0.5",
+    "web3": "^4.5.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.1",
